@@ -1,15 +1,5 @@
-// src/App.tsx - componente React completo
-import { useState } from "react"
+import { useState } from "react";
 
-/**
- * Interface que representa uma proposta comercial.
- * @interface Proposal
- * @property {number} id - Identificador único da proposta.
- * @property {string} cliente - Nome do cliente.
- * @property {Array<{ nome: string; quantidade: number; preco: number; }>} materiais - Lista de materiais da proposta.
- * @property {'Rascunho' | 'Em Aprovação' | 'Aprovada' | 'Enviada' | 'Ganha' | 'Perdida'} status - Status da proposta.
- * @property {number} total - Valor total da proposta.
- */
 interface Proposal {
   id: number;
   cliente: string;
@@ -18,14 +8,6 @@ interface Proposal {
   total: number;
 }
 
-/**
- * Interface que representa o formulário de criação de proposta.
- * @interface PropostaForm
- * @property {string} cliente - Nome do cliente.
- * @property {Array<{ nome: string; quantidade: number; preco: number; }>} materiais - Lista de materiais da proposta.
- * @property {'Rascunho' | 'Em Aprovação'} status - Status da proposta.
- * @property {number} total - Valor total da proposta.
- */
 interface PropostaForm {
   cliente: string;
   materiais: Array<{ nome: string; quantidade: number; preco: number; }>;
@@ -33,22 +15,8 @@ interface PropostaForm {
   total: number;
 }
 
-/**
- * Componente principal da aplicação.
- * @function App
- * @returns {JSX.Element} Elemento JSX do componente.
- */
-export default function App() {
-  /**
-   * Estado que armazena a lista de propostas.
-   * @type {Proposta[]}
-   */
-  const [propostas, setPropostas] = useState<Proposta[]>([]);
-  
-  /**
-   * Estado que armazena o formulário de criação de proposta.
-   * @type {PropostaForm}
-   */
+const App = () => {
+  const [propostas, setPropostas] = useState<Proposal[]>([]);
   const [form, setForm] = useState<PropostaForm>({
     cliente: '',
     materiais: [],
@@ -56,20 +24,11 @@ export default function App() {
     total: 0,
   });
 
-  /**
-   * Função que lida com as mudanças nos campos do formulário.
-   * @function handleChange
-   * @param {React.ChangeEvent<HTMLInputElement | HTMLSelectElement>} e - Evento de mudança.
-   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
-  /**
-   * Função que adiciona um novo material ao formulário.
-   * @function handleAddMaterial
-   */
   const handleAddMaterial = () => {
     setForm({
       ...form,
@@ -77,23 +36,25 @@ export default function App() {
     });
   };
 
-  /**
-   * Função que remove um material do formulário.
-   * @function handleRemoveMaterial
-   * @param {number} index - Índice do material a ser removido.
-   */
   const handleRemoveMaterial = (index: number) => {
     const materiaisAtualizados = form.materiais.filter((_, i) => i !== index);
     setForm({ ...form, materiais: materiaisAtualizados });
   };
 
-  /**
-   * Função que lida com o envio do formulário.
-   * @function handleSubmit
-   */
+  const handleUpdateMaterial = (index: number, campo: string, valor: string | number) => {
+    const materiaisAtualizados = [...form.materiais];
+    materiaisAtualizados[index][campo] = valor;
+    setForm({ ...form, materiais: materiaisAtualizados });
+  };
+
   const handleSubmit = () => {
+    if (!form.cliente || form.materiais.length === 0) {
+      alert("Por favor, preencha todos os campos");
+      return;
+    }
+
     const total = form.materiais.reduce((acc, material) => acc + material.quantidade * material.preco, 0);
-    const novaProposta: Proposta = {
+    const novaProposta: Proposal = {
       ...form,
       id: propostas.length + 1,
       total: total,
@@ -130,11 +91,7 @@ export default function App() {
                 type="text"
                 name="nome"
                 value={material.nome}
-                onChange={(e) => {
-                  const materiaisAtualizados = [...form.materiais];
-                  materiaisAtualizados[index].nome = e.target.value;
-                  setForm({ ...form, materiais: materiaisAtualizados });
-                }}
+                onChange={(e) => handleUpdateMaterial(index, 'nome', e.target.value)}
                 placeholder="Nome"
                 className="bg-zinc-700 p-1 rounded"
               />
@@ -142,11 +99,7 @@ export default function App() {
                 type="number"
                 name="quantidade"
                 value={material.quantidade}
-                onChange={(e) => {
-                  const materiaisAtualizados = [...form.materiais];
-                  materiaisAtualizados[index].quantidade = parseInt(e.target.value);
-                  setForm({ ...form, materiais: materiaisAtualizados });
-                }}
+                onChange={(e) => handleUpdateMaterial(index, 'quantidade', parseInt(e.target.value))}
                 placeholder="Quantidade"
                 className="bg-zinc-700 p-1 rounded"
               />
@@ -154,11 +107,7 @@ export default function App() {
                 type="number"
                 name="preco"
                 value={material.preco}
-                onChange={(e) => {
-                  const materiaisAtualizados = [...form.materiais];
-                  materiaisAtualizados[index].preco = parseFloat(e.target.value);
-                  setForm({ ...form, materiais: materiaisAtualizados });
-                }}
+                onChange={(e) => handleUpdateMaterial(index, 'preco', parseFloat(e.target.value))}
                 placeholder="Preço"
                 className="bg-zinc-700 p-1 rounded"
               />
@@ -167,31 +116,10 @@ export default function App() {
           ))}
           <button onClick={handleAddMaterial} className="bg-green-600 p-1 rounded mt-2">Adicionar Material</button>
         </div>
-        <button onClick={handleSubmit} className="bg-blue-600 p-1 rounded mt-2">Enviar Proposta</button>
-      </div>
-      <div className="mt-4">
-        <h2 className="text-xl font-semibold mb-2">Lista de Propostas</h2>
-        <table className="w-full bg-zinc-800 p-2 rounded-xl">
-          <thead>
-            <tr>
-              <th className="p-2">ID</th>
-              <th className="p-2">Cliente</th>
-              <th className="p-2">Status</th>
-              <th className="p-2">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {propostas.map((proposta) => (
-              <tr key={proposta.id}>
-                <td className="p-2">{proposta.id}</td>
-                <td className="p-2">{proposta.cliente}</td>
-                <td className="p-2">{proposta.status}</td>
-                <td className="p-2">{proposta.total}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <button onClick={handleSubmit} className="bg-blue-600 p-1 rounded">Criar Proposta</button>
       </div>
     </div>
   );
-}
+};
+
+export default App;

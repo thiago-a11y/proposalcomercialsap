@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/App.tsx - componente React completo
+import { useState } from "react"
 
 interface Proposal {
   id: number;
@@ -15,8 +16,8 @@ interface PropostaForm {
   total: number;
 }
 
-const App = () => {
-  const [propostas, setPropostas] = useState<Proposal[]>([]);
+export default function App() {
+  const [propostas, setPropostas] = useState<Proposta[]>([]);
   const [form, setForm] = useState<PropostaForm>({
     cliente: '',
     materiais: [],
@@ -41,20 +42,9 @@ const App = () => {
     setForm({ ...form, materiais: materiaisAtualizados });
   };
 
-  const handleUpdateMaterial = (index: number, campo: string, valor: string | number) => {
-    const materiaisAtualizados = [...form.materiais];
-    materiaisAtualizados[index][campo] = valor;
-    setForm({ ...form, materiais: materiaisAtualizados });
-  };
-
   const handleSubmit = () => {
-    if (!form.cliente || form.materiais.length === 0) {
-      alert("Por favor, preencha todos os campos");
-      return;
-    }
-
     const total = form.materiais.reduce((acc, material) => acc + material.quantidade * material.preco, 0);
-    const novaProposta: Proposal = {
+    const novaProposta: Proposta = {
       ...form,
       id: propostas.length + 1,
       total: total,
@@ -91,7 +81,11 @@ const App = () => {
                 type="text"
                 name="nome"
                 value={material.nome}
-                onChange={(e) => handleUpdateMaterial(index, 'nome', e.target.value)}
+                onChange={(e) => {
+                  const materiaisAtualizados = [...form.materiais];
+                  materiaisAtualizados[index].nome = e.target.value;
+                  setForm({ ...form, materiais: materiaisAtualizados });
+                }}
                 placeholder="Nome"
                 className="bg-zinc-700 p-1 rounded"
               />
@@ -99,7 +93,11 @@ const App = () => {
                 type="number"
                 name="quantidade"
                 value={material.quantidade}
-                onChange={(e) => handleUpdateMaterial(index, 'quantidade', parseInt(e.target.value))}
+                onChange={(e) => {
+                  const materiaisAtualizados = [...form.materiais];
+                  materiaisAtualizados[index].quantidade = parseInt(e.target.value);
+                  setForm({ ...form, materiais: materiaisAtualizados });
+                }}
                 placeholder="Quantidade"
                 className="bg-zinc-700 p-1 rounded"
               />
@@ -107,7 +105,11 @@ const App = () => {
                 type="number"
                 name="preco"
                 value={material.preco}
-                onChange={(e) => handleUpdateMaterial(index, 'preco', parseFloat(e.target.value))}
+                onChange={(e) => {
+                  const materiaisAtualizados = [...form.materiais];
+                  materiaisAtualizados[index].preco = parseFloat(e.target.value);
+                  setForm({ ...form, materiais: materiaisAtualizados });
+                }}
                 placeholder="Preço"
                 className="bg-zinc-700 p-1 rounded"
               />
@@ -116,10 +118,31 @@ const App = () => {
           ))}
           <button onClick={handleAddMaterial} className="bg-green-600 p-1 rounded mt-2">Adicionar Material</button>
         </div>
-        <button onClick={handleSubmit} className="bg-blue-600 p-1 rounded">Criar Proposta</button>
+        <button onClick={handleSubmit} className="bg-blue-600 p-1 rounded mt-2">Enviar Proposta</button>
+      </div>
+      <div className="mt-4">
+        <h2 className="text-xl font-semibold mb-2">Lista de Propostas</h2>
+        <table className="w-full bg-zinc-800 p-2 rounded-xl">
+          <thead>
+            <tr>
+              <th className="p-2">ID</th>
+              <th className="p-2">Cliente</th>
+              <th className="p-2">Status</th>
+              <th className="p-2">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {propostas.map((proposta) => (
+              <tr key={proposta.id}>
+                <td className="p-2">{proposta.id}</td>
+                <td className="p-2">{proposta.cliente}</td>
+                <td className="p-2">{proposta.status}</td>
+                <td className="p-2">{proposta.total}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-};
-
-export default App;
+}

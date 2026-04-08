@@ -1,6 +1,15 @@
 // src/App.tsx - componente React completo
 import { useState } from "react"
 
+/**
+ * Interface que representa uma proposta comercial.
+ * @interface Proposal
+ * @property {number} id - Identificador único da proposta.
+ * @property {string} cliente - Nome do cliente.
+ * @property {Array<{ nome: string; quantidade: number; preco: number; }>} materiais - Lista de materiais da proposta.
+ * @property {'Rascunho' | 'Em Aprovação' | 'Aprovada' | 'Enviada' | 'Ganha' | 'Perdida'} status - Status da proposta.
+ * @property {number} total - Valor total da proposta.
+ */
 interface Proposal {
   id: number;
   cliente: string;
@@ -9,6 +18,14 @@ interface Proposal {
   total: number;
 }
 
+/**
+ * Interface que representa o formulário de criação de proposta.
+ * @interface PropostaForm
+ * @property {string} cliente - Nome do cliente.
+ * @property {Array<{ nome: string; quantidade: number; preco: number; }>} materiais - Lista de materiais da proposta.
+ * @property {'Rascunho' | 'Em Aprovação'} status - Status da proposta.
+ * @property {number} total - Valor total da proposta.
+ */
 interface PropostaForm {
   cliente: string;
   materiais: Array<{ nome: string; quantidade: number; preco: number; }>;
@@ -16,8 +33,22 @@ interface PropostaForm {
   total: number;
 }
 
+/**
+ * Componente principal da aplicação.
+ * @function App
+ * @returns {JSX.Element} Elemento JSX do componente.
+ */
 export default function App() {
+  /**
+   * Estado que armazena a lista de propostas.
+   * @type {Proposta[]}
+   */
   const [propostas, setPropostas] = useState<Proposta[]>([]);
+  
+  /**
+   * Estado que armazena o formulário de criação de proposta.
+   * @type {PropostaForm}
+   */
   const [form, setForm] = useState<PropostaForm>({
     cliente: '',
     materiais: [],
@@ -25,11 +56,20 @@ export default function App() {
     total: 0,
   });
 
+  /**
+   * Função que lida com as mudanças nos campos do formulário.
+   * @function handleChange
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLSelectElement>} e - Evento de mudança.
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
+  /**
+   * Função que adiciona um novo material ao formulário.
+   * @function handleAddMaterial
+   */
   const handleAddMaterial = () => {
     setForm({
       ...form,
@@ -37,11 +77,20 @@ export default function App() {
     });
   };
 
+  /**
+   * Função que remove um material do formulário.
+   * @function handleRemoveMaterial
+   * @param {number} index - Índice do material a ser removido.
+   */
   const handleRemoveMaterial = (index: number) => {
     const materiaisAtualizados = form.materiais.filter((_, i) => i !== index);
     setForm({ ...form, materiais: materiaisAtualizados });
   };
 
+  /**
+   * Função que lida com o envio do formulário.
+   * @function handleSubmit
+   */
   const handleSubmit = () => {
     const total = form.materiais.reduce((acc, material) => acc + material.quantidade * material.preco, 0);
     const novaProposta: Proposta = {
